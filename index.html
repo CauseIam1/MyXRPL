@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.5" />
+    <title>Xaman Ledger Connection</title>
+  </head>
+  <body>
+    <h1 id="accountaddress">...</h1>
+    <button id="signinbutton" onclick="loginWithXumm()">Login</button>
+    <button id="logoutbutton" onclick="logout()" style="display: none">
+      Logout
+    </button>
+
+    <script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
+    <script>
+      // Initialize Xumm with your credentials
+      var xumm = new Xumm("3ee76775-2f57-4ccd-bedb-b87e0dc6a536");
+
+      // Set up event listeners
+      xumm.on("ready", () => {
+        console.log("Xumm SDK ready");
+      });
+
+      xumm.on("success", async () => {
+        try {
+          const account = await xumm.user.account;
+          document.getElementById("accountaddress").innerText = account;
+          document.getElementById("logoutbutton").style.display =
+            "inline-block";
+          document.getElementById("signinbutton").style.display = "none";
+        } catch (error) {
+          console.error("Error fetching account:", error);
+          document.getElementById("accountaddress").innerText =
+            "Error: " + error.message;
+        }
+      });
+
+      xumm.on("logout", async () => {
+        document.getElementById("accountaddress").innerText = "...";
+        document.getElementById("logoutbutton").style.display = "none";
+        document.getElementById("signinbutton").style.display = "inline-block";
+      });
+
+      // Custom login function
+      function loginWithXumm() {
+        xumm
+          .authorize()
+          .then((response) => {
+            console.log("Authorization response:", response);
+          })
+          .catch((error) => {
+            console.error("Authorization error:", error);
+            document.getElementById("accountaddress").innerText =
+              "Login fail: " + error.message;
+          });
+      }
+
+      // Custom logout function
+      function logout() {
+        xumm.logout();
+      }
+    </script>
+  </body>
+</html>
