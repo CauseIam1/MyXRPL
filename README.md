@@ -7,5 +7,5 @@ Index.html is the product thus far.
 
 
 
-Stage 2 will be the addition od Nitrious.
+Stage 2 will be the addition of Nitrious.
 I have a concept I'm working on with AI but I'll leave it there...
