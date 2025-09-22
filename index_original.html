@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XRPL AMM Turbocharger</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+      }
+
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .nav-info {
+        display: flex;
+        gap: 20px;
+        font-size: 0.9rem;
+      }
+
+      .nav-info div {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 15px;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+      }
+
+      .container {
+        margin-top: 80px;
+        padding: 20px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .transactions-header {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e0e6ed;
+      }
+
+      .transactions-header h2 {
+        color: #4a5568;
+        font-weight: 600;
+      }
+
+      .transactions-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .transaction-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .transaction-item:last-child {
+        border-bottom: none;
+      }
+
+      .transaction-details {
+        flex: 1;
+      }
+
+      .transaction-hash {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: #4a5568;
+        margin-top: 5px;
+      }
+
+      .transaction-type {
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .transaction-amount {
+        font-weight: 600;
+        color: #48bb78;
+      }
+
+      .transaction-date {
+        color: #718096;
+        font-size: 0.85rem;
+      }
+
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .login-box {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      .login-box h2 {
+        margin-bottom: 20px;
+        color: #4a5568;
+      }
+
+      .login-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 1rem;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .account-input {
+        width: 100%;
+        padding: 12px;
+        margin: 15px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: #718096;
+      }
+
+      .error {
+        background: #fed7d7;
+        color: #c53030;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="login-screen" class="login-container">
+        <div class="login-box">
+          <h2>Turbocharger Login</h2>
+          <input
+            type="text"
+            id="account-input"
+            class="account-input"
+            placeholder="Enter XRP Account Address (r...)"
+          />
+          <button id="view-btn" class="login-btn">Go Time</button>
+        </div>
+      </div>
+
+      <nav id="nav-bar" class="nav" style="display: none">
+        <h1>XRPL AMM Turbocharger</h1>
+        <div class="nav-info">
+          <div id="account-address">Address: Loading...</div>
+          <div id="ledger-index">Ledger: Loading...</div>
+        </div>
+      </nav>
+
+      <div id="main-content" class="container" style="display: none">
+        <div class="transactions-header">
+          <h2>Recent Transactions</h2>
+        </div>
+        <div id="transactions-container" class="transactions-container">
+          <div class="loading">Loading transactions...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let accountAddress = null;
+      let xrplClient = null;
+
+      // Initialize XRPL client
+      function initXRPL() {
+        xrplClient = new WebSocket("wss://s1.ripple.com:443");
+
+        xrplClient.onopen = () => {
+          console.log("Connected to XRPL");
+          updateLedgerInfo();
+
+          // Subscribe to ledger updates
+          xrplClient.send(
+            JSON.stringify({
+              id: 1,
+              command: "subscribe",
+              streams: ["ledger"],
+            })
+          );
+        };
+
+        xrplClient.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.type === "ledgerClosed") {
+            document.getElementById(
+              "ledger-index"
+            ).textContent = `Ledger: ${data.ledger_index}`;
+          }
+        };
+
+        xrplClient.onerror = (error) => {
+          console.error("XRPL Connection Error:", error);
+        };
+      }
+
+      // Update ledger information
+      function updateLedgerInfo() {
+        if (xrplClient && xrplClient.readyState === WebSocket.OPEN) {
+          xrplClient.send(
+            JSON.stringify({
+              id: 2,
+              command: "ledger_current",
+            })
+          );
+        }
+      }
+
+      // View account handler
+      document
+        .getElementById("view-btn")
+        .addEventListener("click", async () => {
+          const input = document.getElementById("account-input").value.trim();
+          if (!input || !input.startsWith("r")) {
+            alert("Please enter a valid XRP account address");
+            return;
+          }
+
+          accountAddress = input;
+          document.getElementById(
+            "account-address"
+          ).textContent = `Address: ${accountAddress}`;
+
+          // Show main content
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("nav-bar").style.display = "flex";
+          document.getElementById("main-content").style.display = "block";
+
+          // Initialize XRPL connection
+          initXRPL();
+
+          // Load transactions
+          loadTransactions();
+        });
+
+      // Load account transactions using XRPL WebSocket
+      async function loadTransactions() {
+        if (!accountAddress || !xrplClient) return;
+
+        try {
+          // Create a new WebSocket connection for account transactions
+          const ws = new WebSocket("wss://s1.ripple.com:443");
+
+          ws.onopen = () => {
+            ws.send(
+              JSON.stringify({
+                id: 1,
+                command: "account_tx",
+                account: accountAddress,
+                ledger_index_min: -1,
+                ledger_index_max: -1,
+                limit: 50,
+                forward: false,
+              })
+            );
+          };
+
+          ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.result && data.result.transactions) {
+              displayTransactions(data.result.transactions);
+            } else {
+              document.getElementById("transactions-container").innerHTML =
+                '<div class="error">No transactions found for this account</div>';
+            }
+            ws.close();
+          };
+
+          ws.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+            document.getElementById("transactions-container").innerHTML =
+              '<div class="error">Failed to connect to XRPL for transactions</div>';
+          };
+        } catch (error) {
+          console.error("Transaction loading error:", error);
+          document.getElementById(
+            "transactions-container"
+          ).innerHTML = `<div class="error">Failed to load transactions: ${error.message}</div>`;
+        }
+      }
+
+      // Display transactions in UI
+      function displayTransactions(transactions) {
+        const container = document.getElementById("transactions-container");
+
+        if (!transactions || transactions.length === 0) {
+          container.innerHTML =
+            '<div class="loading">No transactions found</div>';
+          return;
+        }
+
+        // Sort transactions by date (newest first)
+        transactions.sort((a, b) => b.tx.date - a.tx.date);
+
+        container.innerHTML = transactions
+          .map((item) => {
+            const tx = item.tx;
+            const date = new Date(
+              (tx.date + 946684800) * 1000
+            ).toLocaleString();
+            let amount = "N/A";
+
+            if (tx.Amount) {
+              if (typeof tx.Amount === "string") {
+                // XRP amount
+                amount = `${parseInt(tx.Amount) / 1000000} XRP`;
+              } else if (tx.Amount.currency) {
+                // IOU amount
+                amount = `${tx.Amount.value} ${tx.Amount.currency}`;
+              }
+            } else if (tx.Fee) {
+              amount = `Fee: ${parseInt(tx.Fee) / 1000000} XRP`;
+            }
+
+            return `
+                    <div class="transaction-item">
+                        <div class="transaction-details">
+                            <div class="transaction-type">${tx.TransactionType}</div>
+                            <div class="transaction-hash">${tx.hash}</div>
+                        </div>
+                        <div class="transaction-amount">${amount}</div>
+                        <div class="transaction-date">${date}</div>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+    </script>
+  </body>
+</html>
