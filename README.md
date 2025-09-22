@@ -1,2 +1,2 @@
 # MyXRPL
-AMM Supercharger
+AMM Turbocharger
