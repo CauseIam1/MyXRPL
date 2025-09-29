@@ -2,7 +2,7 @@
 AMM Turbocharger is a way to maximize AMM and asset holdings. On top of the amazing AMM itself. 
 Here's how it works... 
 Let's start with 5 XRPL assets (non corelating, no xrp) and let's create an AMM pool for each asset pair. 
-Put the AMM pools in a different account than the one that you’ll be swapping (cold storage).
+Put the AMM pools in a different account than the one that you’ll be swapping (in cold storage).
 Set the fee for the pools to 1% (the max) as you own the pool and since you'll be swapping through your pool, you want your pool to make 1% of the value being swapped through it. 
 This increases your pool size slowly over time, as well as what the AMM has managed to accumulate during times of volatility. 
 You want your swapping account’s transaction history to be centered around swapping, not AMM pools so keep the two accounts separate for best results (less cluttered).
