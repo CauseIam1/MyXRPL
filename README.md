@@ -42,4 +42,4 @@ Progress can be tracked by visiting…
 myxrpl.x
 I update this site with my latest working file, about once a week to see how it looks on my cell.
 This site is being created for the personal, family and friend use with no affilation. 
-
+Special thanks to the XRPL.org and Xaman!
