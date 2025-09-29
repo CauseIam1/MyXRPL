@@ -1,6 +1,5 @@
 # MyXRPL
-AMM Turbocharger
-This site is a way to maximize AMM and asset holdings. On top of the amazing AMM itself. 
+AMM Turbocharger is a way to maximize AMM and asset holdings. On top of the amazing AMM itself. 
 Here's how it works... 
 Let's start with 5 XRPL assets (non corelating, no xrp) and let's create an AMM pool for each asset pair. 
 Put the AMM pools in a different account than the one that you’ll be swapping (cold storage).
@@ -22,7 +21,6 @@ Select the trade pair you'd like to see the AMM pool for by selecting the tradin
 The AMM will then move from the trade it was focused on and move to the trade you selected. 
 You can then enter your latest swap value into the AMM and fetch a live quote to verify what would happen if you did the reverse swap.
 
-
 Once tested for a period of time and verified of all the features of the site are working properly the following will be phased in.
 Migration to React
 Login integration using Xaman (Xumm SDK)
@@ -35,18 +33,12 @@ Assess all latest swaps and compare the exchange rate against the current exchan
 List the asset pairs in order from most potential profit to least potential profit
 AMM will be focused on the pair with the most potential profit to start with so it’s ready to swap
 
-
-
-
-
-
-
 Stage 2 will come after all of the above has been implemented.
 Additional option of giving the Turbocharger a shot of Nitrous. 
 It involves multiple sequential swaps. But I'll leave it there for now...
 
-
 Progress can be tracked by visiting…
 myxrpl.x
 I update this site with my latest working file, about once a week to see how it looks on my cell.
+This site is being created for the personal use of causeiam.x with no affilation. 
 
