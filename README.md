@@ -40,5 +40,5 @@ It involves multiple sequential swaps. But I'll leave it there for now...
 Progress can be tracked by visiting…
 myxrpl.x
 I update this site with my latest working file, about once a week to see how it looks on my cell.
-This site is being created for the personal use of causeiam.x with no affilation. 
+This site is being created for the personal, family and friend use with no affilation. 
 
