@@ -6,6 +6,7 @@ Put the AMM pools in a different account than the one that you’ll be swapping 
 Set the fee for the pools to 1% (the max) as you own the pool and since you'll be swapping through your pool, you want your pool to make 1% of the value being swapped through it. 
 This increases your pool size slowly over time, as well as what the AMM has managed to accumulate during times of volatility. 
 You want your swapping account’s transaction history to be centered around swapping, not AMM pools so keep the two accounts separate for best results. Your account is less cluttered.
+Make sure you have some of each asset in your trading account as that's what you'll be swapping through your AMM pools.
 So, if we have 5 assets and pools for each pair, we'll have 10 AMM pools 1/2, 1/3, 1/4, 1/5, 2/3, 2/4, 2/5, 3/4, 3/5, 4/5 
 Make small swaps through each pool to ensure they're working and to give the site a starting point to do calculations from. 
 When you log in the site, it loads your transaction history of swaps (currently set to 1000 payment transactions).
