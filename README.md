@@ -27,7 +27,7 @@ Migration to React
 Login integration using Xaman (Xumm SDK)
 AMM swap functionality added to the AMM pool
 Fire up an XRPL Node so the site can retrieve requests from my Node
-Switch from search of 1000 transactions to search ledger index 87000589 for accurate results back to the time when the AMM amendment was invoked.
+Switch from search of 1000 transactions to search to ledger index 87000589 for more accurate results back to the time when the AMM amendment was invoked.
 If all is functioning properly at this time the site should show you the following.
 All token swaps with profit/loss of each asset pair in chronological order since the beginning of the AMM pool inception (Mar, 2024)
 Assess all latest swaps and compare the exchange rate against the current exchange rate
