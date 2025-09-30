@@ -3,9 +3,9 @@ AMM Turbocharger is a way to maximize AMM and asset holdings. On top of the amaz
 Here's how it works... 
 Let's start with 5 XRPL assets (non corelating, no xrp) and let's create an AMM pool for each asset pair. 
 Put the AMM pools in a different account than the one that you’ll be swapping (in cold storage).
-Set the fee for the pools to 1% (the max) as you own the pool and since you'll be swapping through your pool, you want your pool to make 1% of the value being swapped through it. 
+Set the fee for the pools to 1% (the max) as you own the pool and since you will be swapping through your pool, you want your pool to make 1% of the value being swapped through it. 
 This increases your pool size slowly over time, as well as what the AMM has managed to accumulate during times of volatility. 
-You want your swapping account’s transaction history to be centered around swapping, not AMM pools so keep the two accounts separate for best results (less cluttered).
+You want your swapping account transaction history to be centered around swapping, not AMM pools so keep the two accounts separate for best results (less cluttered).
 Make sure you have some of each asset in your trading account as that's what you'll be swapping through your AMM pools.
 So, if we have 5 assets and pools for each pair, we'll have 10 AMM pools 1/2, 1/3, 1/4, 1/5, 2/3, 2/4, 2/5, 3/4, 3/5, 4/5 
 Make small swaps through each pool to ensure they're working and to give the site a starting point to do calculations from. 
@@ -32,16 +32,16 @@ If all is functioning properly at this time the site should show you the followi
 All token swaps with profit/loss of each asset pair in chronological order since the beginning of the AMM pool inception (Mar, 2024)
 Assess all latest swaps and compare the exchange rate against the current exchange rate
 List the asset pairs in order from most potential profit to least potential profit
-AMM will be focused on the pair with the most potential profit to start with so it’s ready to swap
+AMM will be focused on the pair with the most potential profit to start with so it is ready to swap
 
 Stage 2 will come after all of the above has been implemented.
 Additional option of giving the Turbocharger a shot of Nitrous. 
 It involves multiple sequential swaps. But I'll leave it there for now...
 
-Progress can be tracked by visiting…
+Progress can be tracked by visiting
 myxrpl.x
 I update this site with my latest working file, about once a week to see how it looks on my cell.
-This site is being created for the personal, family and friend use with no affilation. 
+This site is being created for personal, family and friend use with no affilation. 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
