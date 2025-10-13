@@ -1,4 +1,3 @@
-# MyXRPL
 AMM Turbocharger is a way to maximize AMM and asset holdings. On top of the amazing AMM itself. 
 Here's how it works... 
 Let's start with 5 XRPL assets (non corelating, no xrp) and let's create an AMM pool for each asset pair. 
@@ -27,9 +26,9 @@ Fire up an XRPL Node so the site can retrieve requests from my Node
 Switch from search of 1000 transactions to search to ledger index 87000589 for more accurate results back to the time when the AMM amendment was invoked.
 If all is functioning properly at this time the site should show you the following.
 All token swaps with profit/loss of each asset pair in chronological order since the beginning of the AMM pool inception (Mar, 2024)
-Assess all latest swaps and compare the exchange rate against the current exchange rate
-List the asset pairs in order from most potential profit to least potential profit
-AMM will be focused on the pair with the most potential profit to start with so it is ready to swap
+Assess all latest swaps and compare the exchange rate against the current AMM rate
+List the asset pairs in order from most potential profit to least potential profit (doing Reverse Swap)
+AMM will be focused on the pair with the most potential profit to start with so it is ready to verify the swap numbers
 
 Stage 2 will come after all of the above has been implemented.
 Additional option of giving the Turbocharger a shot of Nitrous. 
@@ -40,8 +39,8 @@ Stage 3 is also in concept...
 Progress can be tracked by visiting
 myxrpl.x
 This is the last html file I will post for now. I am well into React and posting isn't so easy.
-The progress is so good I have started adding additional analytical features already.
-This site is being created for personal, family and friend use with no affilation. 
+The progress is so good I have started adding additional analytical features that aren't listed above.
+This site is being created for personal, family and friend use with no affiliation. 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
