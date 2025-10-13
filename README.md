@@ -13,19 +13,16 @@ When you log in the site, it loads your transaction history of swaps (currently 
 It groups all past swaps within swap pairs in chronological order. 
 It starts with your oldest trade (keeping running total) and goes through your swaps in the same order you filled them.
 It reports your profit/loss on each asset pair, from your first swap until latest swap. 
-It then looks at the exchange rate of your latest swap and compares it to the current exchange rate for the pair (based on dex order pricing) 
-After it's calculated all of the above, it puts the most profitable reverse swap at the top of the list where it shows how much you could receive if you made a reverse swap of your latest swap. 
+It then looks at your latest swap and compares it to the current exchange rate for the pair (AMM pricing)  
 It also displays the breakdown and analysis of your previous swaps for this pair so you can see how you're doing with this trading pair. 
 On the right side of the screen, there's an AMM to obtain live quotes and verify the reverse swap suggestion. 
 The AMM can only focus on 1 trade pair at a time. 
 Select the trade pair you'd like to see the AMM pool for by selecting the trading pair in your list. 
-The AMM will then move from the trade it was focused on and move to the trade you selected. 
+The AMM will then move it's focus from the trade it was focused on and focus on the trade you selected. 
 You can then enter your latest swap value into the AMM and fetch a live quote to verify what would happen if you did the reverse swap.
 
 Once tested for a period of time and verified of all the features of the site are working properly the following will be phased in.
 Migration to React
-Login integration using Xaman (Xumm SDK)
-AMM swap functionality added to the AMM pool
 Fire up an XRPL Node so the site can retrieve requests from my Node
 Switch from search of 1000 transactions to search to ledger index 87000589 for more accurate results back to the time when the AMM amendment was invoked.
 If all is functioning properly at this time the site should show you the following.
@@ -38,9 +35,12 @@ Stage 2 will come after all of the above has been implemented.
 Additional option of giving the Turbocharger a shot of Nitrous. 
 It involves multiple sequential swaps. But I'll leave it there for now...
 
+Stage 3 is also in concept...
+
 Progress can be tracked by visiting
 myxrpl.x
-I update this site with my latest working file, about once a week to see how it looks on my cell.
+This is the last html file I will post for now. I am well into React and posting isn't so easy.
+The progress is so good I have started adding additional analytical features already.
 This site is being created for personal, family and friend use with no affilation. 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
