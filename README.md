@@ -19,6 +19,9 @@ It then looks at your latest swap and compares it to the current exchange rate f
 On the right side of the screen, there's an AMM to obtain live quotes and verify the reverse swap suggestion. 
 Select the trade pair you'd like to see the AMM pool for by selecting the trading pair in your list. 
 Once you've made enough swaps in both directions, the page will calculate your Swap Profits.
+The page auto updates all calculations every 3 minutes.
+If you're doing sequential swapping, don't look at the page until you're done swapping all the way through the chain.
+Otherwise, with the site updating, things won't make sense. (might have to do batch swaps in the future)
 
 Things are still be tested. Progress can be tracked by visiting
 myxrpl.x
