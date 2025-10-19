@@ -22,7 +22,7 @@ Once you've made enough swaps in both directions, the page will calculate your S
 
 Things are still be tested. Progress can be tracked by visiting
 myxrpl.x
-This site is being created for personal, family and friend use with no affiliation. 
+This site is being created for personal use with no affiliation. 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
