@@ -1,5 +1,8 @@
-AMM Turbocharger is a way to maximize AMM and asset holdings. On top of the amazing AMM itself. 
-Here's how it works... 
+AMM Token Swapping Turbocharger is a way to maximize AMM and token holdings. 
+To take advantage of the Reverse swap calculator and boost your piles, 
+swap some of your assets for other assets (through AMM pool). 
+Then load your r-address into the page and looking at live prices, will tell you if it's profitable to reverse swap to pick up profit.
+Or you could take advantage of all the benefits of the already amazing AMM and this page, by doing the following…
 Let's start with 5 XRPL assets (non corelating, no xrp) and let's create an AMM pool for each asset pair. 
 Put the AMM pools in a different account than the one that you will be swapping (in cold storage).
 Set the fee for the pools to 1% (the max) as you own the pool and since you will be swapping through your pool, you want your pool to make 1% of the value being swapped through it. 
@@ -8,39 +11,20 @@ You want your swapping account transaction history to be centered around swappin
 Make sure you have some of each asset in your trading account as that's what you'll be swapping through your AMM pools.
 So, if we have 5 assets and pools for each pair, we'll have 10 AMM pools 1/2, 1/3, 1/4, 1/5, 2/3, 2/4, 2/5, 3/4, 3/5, 4/5 
 Make small swaps through each pool to ensure they're working and to give the site a starting point to do calculations from. 
-When you log in the site, it loads your transaction history of swaps (currently set to 1000 payment transactions).
+When you log in the site, it loads your transaction history of swaps.
 It groups all past swaps within swap pairs in chronological order. 
 It starts with your oldest trade (keeping running total) and goes through your swaps in the same order you filled them.
 It reports your profit/loss on each asset pair, from your first swap until latest swap. 
-It then looks at your latest swap and compares it to the current exchange rate for the pair (AMM pricing)  
-It also displays the breakdown and analysis of your previous swaps for this pair so you can see how you're doing with this trading pair. 
+It then looks at your latest swap and compares it to the current exchange rate for a reverse swap (AMM pricing). 
 On the right side of the screen, there's an AMM to obtain live quotes and verify the reverse swap suggestion. 
-The AMM can only focus on 1 trade pair at a time. 
 Select the trade pair you'd like to see the AMM pool for by selecting the trading pair in your list. 
-The AMM will then move it's focus from the trade it was focused on and focus on the trade you selected. 
-You can then enter your latest swap value into the AMM and fetch a live quote to verify what would happen if you did the reverse swap.
+Once you've made enough swaps in both directions, the page will calculate your Swap Profits.
 
-Once tested for a period of time and verified of all the features of the site are working properly the following will be phased in.
-Migration to React
-Fire up an XRPL Node so the site can retrieve requests from my Node
-Switch from search of 1000 transactions to search to ledger index 87000589 for more accurate results back to the time when the AMM amendment was invoked.
-If all is functioning properly at this time the site should show you the following.
-All token swaps with profit/loss of each asset pair in chronological order since the beginning of the AMM pool inception (Mar, 2024)
-Assess all latest swaps and compare the exchange rate against the current AMM rate
-List the asset pairs in order from most potential profit to least potential profit (doing Reverse Swap)
-AMM will be focused on the pair with the most potential profit to start with so it is ready to verify the swap numbers
-
-Stage 2 will come after all of the above has been implemented.
-Additional option of giving the Turbocharger a shot of Nitrous. 
-It involves multiple sequential swaps. But I'll leave it there for now...
-
-Stage 3 is also in concept...
-
-Progress can be tracked by visiting
+Things are still be tested. Progress can be tracked by visiting
 myxrpl.x
-This is the last html file I will post for now. I am well into React and posting isn't so easy.
-The progress is so good I have started adding additional analytical features that aren't listed above.
 This site is being created for personal, family and friend use with no affiliation. 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
+
+
