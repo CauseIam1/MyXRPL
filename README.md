@@ -9,6 +9,7 @@ Added token details metadata (a few things to work on yet).
 Added live prices to Token Position.
 Calculates amount of profit/loss in xrp
 This will now be in testing for a while.
+See screenshot of actual account.  (App Screenshot.jpg)
 
 Direct link...
 
@@ -21,3 +22,4 @@ Token Swapping Turbocharger is a way to maximize AMM and token holdings. To take
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
+
