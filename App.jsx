@@ -495,135 +495,82 @@ function App() {
       overrideFilterSinceLogin !== null
         ? overrideFilterSinceLogin
         : filterSinceLogin;
-    const minLedger = useFilter ? loginLedger : START_LEDGER;
 
     if (!accountAddress || loadingCancelledRef.current) return;
     setLoadingTransactions(true);
     setLoadingProgress(0);
     setError("");
+
     try {
       const cacheKey = `${CACHE_KEY_PREFIX}${accountAddress}`;
       const cachedData = localStorage.getItem(cacheKey);
       let cachedTransactions = [];
-      let lastProcessedLedger = minLedger;
+      let lastFullLoadLedger = START_LEDGER;
+
       if (cachedData) {
         try {
           const parsedCache = JSON.parse(cachedData);
           cachedTransactions = parsedCache.transactions || [];
-          lastProcessedLedger = Math.max(
-            parsedCache.lastLedger || START_LEDGER,
-            minLedger
-          );
+          lastFullLoadLedger = parsedCache.lastLedger || START_LEDGER;
         } catch (e) {
           console.error("Error parsing cached data:", e);
         }
       }
-      const ws = new WebSocket("wss://s2.ripple.com:51233");
-      let newTransactions = [];
-      let marker = null;
-      let totalLoaded = 0;
-      const maxLedger = ledgerIndex === "Loading..." ? null : ledgerIndex;
-      let requestCount = 0;
-      const maxRequests = 100;
-      ws.onopen = () => {
-        if (loadingCancelledRef.current) {
-          ws.close();
-          return;
-        }
-        const request = {
-          id: 1,
-          command: "account_tx",
-          account: accountAddress,
-          ledger_index_min: lastProcessedLedger,
-          ledger_index_max: -1,
-          limit: 400,
-          forward: true,
-        };
-        if (marker) request.marker = marker;
-        ws.send(JSON.stringify(request));
-      };
-      ws.onmessage = (event) => {
-        if (loadingCancelledRef.current) {
-          ws.close();
-          setLoadingTransactions(false);
-          return;
-        }
-        const data = JSON.parse(event.data);
-        if (data.result && data.result.transactions) {
-          const batchSize = data.result.transactions.length;
-          newTransactions = [...newTransactions, ...data.result.transactions];
-          totalLoaded += batchSize;
-          requestCount++;
-          const progress = Math.min(
-            100,
-            Math.round((requestCount / maxRequests) * 100)
+
+      let allTransactions = [...cachedTransactions];
+
+      // If "Update Swaps" is ON, fetch new transactions since last load or login
+      if (useFilter) {
+        const minLedger = Math.max(lastFullLoadLedger, loginLedger);
+        const maxLedger = ledgerIndex === "Loading..." ? null : ledgerIndex;
+
+        if (minLedger < (maxLedger || Infinity)) {
+          // Fetch new transactions since last load
+          const newTransactions = await fetchTransactionsSince(
+            accountAddress,
+            minLedger,
+            maxLedger
           );
-          setLoadingProgress(progress);
-          if (
-            data.result.marker &&
-            !loadingCancelledRef.current &&
-            requestCount < maxRequests
-          ) {
-            marker = data.result.marker;
-            setTimeout(() => {
-              if (!loadingCancelledRef.current) {
-                ws.send(
-                  JSON.stringify({
-                    id: 1,
-                    command: "account_tx",
-                    account: accountAddress,
-                    ledger_index_min: lastProcessedLedger,
-                    ledger_index_max: -1,
-                    limit: 400,
-                    forward: true,
-                    marker: marker,
-                  })
-                );
-              }
-            }, 100);
-          } else {
-            const allTransactions = [...cachedTransactions, ...newTransactions];
-            const { swaps: swapTransactions } =
-              sortAndProcessTransactions(allTransactions);
-            try {
-              const transactionsToCache = allTransactions.slice(-300);
-              const cacheData = {
-                transactions: transactionsToCache,
-                swaps: swapTransactions,
-                lastLedger: maxLedger,
-                timestamp: Date.now(),
-                account: accountAddress,
-              };
-              localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-            } catch (e) {
-              console.error("Error caching transactions:", e);
-              try {
-                localStorage.removeItem(cacheKey);
-              } catch (clearError) {
-                console.error("Error clearing cache:", clearError);
-              }
-            }
-            setTransactions(swapTransactions);
-            setLoadingTransactions(false);
-            setLoadingProgress(0);
-            ws.close();
-          }
-        } else {
-          const { swaps: swapTransactions } =
-            sortAndProcessTransactions(cachedTransactions);
-          setTransactions(swapTransactions);
-          setLoadingTransactions(false);
-          setLoadingProgress(0);
-          ws.close();
+
+          // Merge with existing transactions, removing duplicates
+          const transactionHashes = new Set(
+            allTransactions.map((tx) => tx.tx?.hash)
+          );
+          const uniqueNewTransactions = newTransactions.filter(
+            (tx) => tx.tx?.hash && !transactionHashes.has(tx.tx.hash)
+          );
+          allTransactions = [...allTransactions, ...uniqueNewTransactions];
         }
-      };
-      ws.onerror = (error) => {
-        console.error("Transaction Loading Error:", error);
-        setError("Failed to load transactions from XRPL.");
-        setLoadingTransactions(false);
-        setLoadingProgress(0);
-        ws.close();
-      };
+      } else {
+        // Load complete transaction history (fallback)
+        const completeTransactions = await fetchCompleteTransactionHistory(
+          accountAddress
+        );
+        allTransactions = completeTransactions;
+      }
+
+      const { swaps: swapTransactions } =
+        sortAndProcessTransactions(allTransactions);
+
+      // Cache the results
+      try {
+        const transactionsToCache = allTransactions.slice(-1000); // Increased cache size
+        const cacheData = {
+          transactions: transactionsToCache,
+          swaps: swapTransactions,
+          lastLedger:
+            ledgerIndex === "Loading..." ? lastFullLoadLedger : ledgerIndex,
+          timestamp: Date.now(),
+          account: accountAddress,
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      } catch (e) {
+        console.error("Error caching transactions:", e);
+      }
+
+      setTransactions(swapTransactions);
+      setLoadingTransactions(false);
+      setLoadingProgress(0);
     } catch (err) {
       console.error("Transaction Loading Failed:", err);
       setError("Failed to load transactions.");
@@ -631,6 +578,123 @@ function App() {
       setLoadingProgress(0);
     }
   };
+
+  // Helper function to fetch transactions since a specific ledger
+  const fetchTransactionsSince = async (account, minLedger, maxLedger) => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket("wss://s2.ripple.com:51233");
+      let transactions = [];
+      let marker = null;
+
+      ws.onopen = () => {
+        const request = {
+          id: 1,
+          command: "account_tx",
+          account: account,
+          ledger_index_min: minLedger,
+          ledger_index_max: maxLedger || -1,
+          limit: 400,
+          forward: true,
+        };
+        ws.send(JSON.stringify(request));
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.result && data.result.transactions) {
+          transactions = [...transactions, ...data.result.transactions];
+          if (data.result.marker) {
+            marker = data.result.marker;
+            setTimeout(() => {
+              ws.send(
+                JSON.stringify({
+                  id: 1,
+                  command: "account_tx",
+                  account: account,
+                  ledger_index_min: minLedger,
+                  ledger_index_max: maxLedger || -1,
+                  limit: 400,
+                  forward: true,
+                  marker: marker,
+                })
+              );
+            }, 100);
+          } else {
+            ws.close();
+            resolve(transactions);
+          }
+        } else {
+          ws.close();
+          resolve(transactions);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("Transaction Loading Error:", error);
+        ws.close();
+        reject(error);
+      };
+    });
+  };
+
+  // Helper function to fetch complete transaction history
+  const fetchCompleteTransactionHistory = async (account) => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket("wss://s2.ripple.com:51233");
+      let transactions = [];
+      let marker = null;
+
+      ws.onopen = () => {
+        const request = {
+          id: 1,
+          command: "account_tx",
+          account: account,
+          ledger_index_min: START_LEDGER,
+          ledger_index_max: -1,
+          limit: 400,
+          forward: true,
+        };
+        ws.send(JSON.stringify(request));
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.result && data.result.transactions) {
+          transactions = [...transactions, ...data.result.transactions];
+          if (data.result.marker) {
+            marker = data.result.marker;
+            setTimeout(() => {
+              ws.send(
+                JSON.stringify({
+                  id: 1,
+                  command: "account_tx",
+                  account: account,
+                  ledger_index_min: START_LEDGER,
+                  ledger_index_max: -1,
+                  limit: 400,
+                  forward: true,
+                  marker: marker,
+                })
+              );
+            }, 100);
+          } else {
+            ws.close();
+            resolve(transactions);
+          }
+        } else {
+          ws.close();
+          resolve(transactions);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("Transaction Loading Error:", error);
+        ws.close();
+        reject(error);
+      };
+    });
+  };
+
   const fetchTokenXrpPrice = async (currency, issuer) => {
     if (currency === "XRP") return 1;
     if (!issuer) return null;
@@ -2976,6 +3040,9 @@ function App() {
               }`,
               fontWeight: "500",
               color: themes[theme]?.textSecondary || themes.blue.textSecondary,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
             Update Swaps
@@ -2985,11 +3052,28 @@ function App() {
                 checked={filterSinceLogin}
                 onChange={(e) => {
                   setFilterSinceLogin(e.target.checked);
-                  loadTransactions(e.target.checked);
                 }}
               />
               <span className="slider"></span>
             </label>
+            {filterSinceLogin && (
+              <button
+                onClick={() => loadTransactions(true)}
+                style={{
+                  background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                  color: themes[theme].text,
+                  border: "none",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "0.7rem",
+                }}
+                title="Update with new transactions"
+              >
+                ↻
+              </button>
+            )}
           </div>
           <div
             style={{
@@ -3085,6 +3169,7 @@ function App() {
           </button>
         </div>
       </nav>
+
       <div
         style={{
           padding: "20px",
