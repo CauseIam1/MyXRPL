@@ -6,6 +6,7 @@ import {
   truncateAddress,
   getPairKey,
 } from "./utils/formatters";
+import TokenPositions from "./components/TokenPositions";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [accountAddress, setAccountAddress] = useState("");
@@ -35,7 +36,130 @@ function App() {
   const [arbitrageChains, setArbitrageChains] = useState([]);
   const START_LEDGER = 87000589;
   const CACHE_KEY_PREFIX = "xrpl_transaction_cache_";
+  const [filterSinceLogin, setFilterSinceLogin] = useState(false);
+  const [loginLedger, setLoginLedger] = useState(START_LEDGER);
+  const [tokenPrices, setTokenPrices] = useState({});
   const [chainProfitThreshold, setChainProfitThreshold] = useState(0.5);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("appTheme") || "gold";
+  });
+  const [fontFamily, setFontFamily] = useState(() => {
+    return localStorage.getItem("appFont") || "showcardGothic";
+  });
+  const themes = {
+    blue: {
+      primary: "#27a2db",
+      secondary: "#60a5fa",
+      accent: "#93c5fd",
+      background: "linear-gradient(135deg, #0a1429, #0f1c2e, #1e3a5f)",
+      cardBackground: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+      text: "#ffffff",
+      textSecondary: "#e2e8f0",
+      border: "#27a2db",
+    },
+    cyan: {
+      primary: "#06b6d4",
+      secondary: "#0ea5e9",
+      accent: "#38bdf8",
+      background: "linear-gradient(135deg, #0c1e25, #0f2a3f, #0e7a8f)",
+      cardBackground: "linear-gradient(135deg, #0f2a3f, #0c1e25)",
+      text: "#f0f9ff",
+      textSecondary: "#cffafe",
+      border: "#06b6d4",
+    },
+    purple: {
+      primary: "#8b5cf6",
+      secondary: "#a78bfa",
+      accent: "#c4b5fd",
+      background: "linear-gradient(135deg, #1a0b2e, #1e1b4b, #4c1d95)",
+      cardBackground: "linear-gradient(135deg, #1e1b4b, #1a0b2e)",
+      text: "#f3e8ff",
+      textSecondary: "#e0c3fc",
+      border: "#8b5cf6",
+    },
+    magenta: {
+      primary: "#ec4899",
+      secondary: "#f472b6",
+      accent: "#f9a8d4",
+      background: "linear-gradient(135deg, #2d031f, #310826, #701a47)",
+      cardBackground: "linear-gradient(135deg, #310826, #2d031f)",
+      text: "#fce7f3",
+      textSecondary: "#fbcfe8",
+      border: "#ec4899",
+    },
+    dark: {
+      primary: "#64748b",
+      secondary: "#94a3b8",
+      accent: "#cbd5e1",
+      background: "linear-gradient(135deg, #000000, #0f172a, #1e293b)",
+      cardBackground: "linear-gradient(135deg, #1e293b, #0f172a)",
+      text: "#f8fafc",
+      textSecondary: "#e2e8f0",
+      border: "#64748b",
+    },
+    pink: {
+      primary: "#ec4899",
+      secondary: "#f472b6",
+      accent: "#f9a8d4",
+      background: "linear-gradient(135deg, #3c021d, #5e1735, #881337)",
+      cardBackground: "linear-gradient(135deg, #5e1735, #3c021d)",
+      text: "#fce7f3",
+      textSecondary: "#fbcfe8",
+      border: "#ec4899",
+    },
+    orange: {
+      primary: "#f97316",
+      secondary: "#fb923c",
+      accent: "#fdba74",
+      background: "linear-gradient(135deg, #3c1504, #5a2208, #9a3412)",
+      cardBackground: "linear-gradient(135deg, #5a2208, #3c1504)",
+      text: "#fff7ed",
+      textSecondary: "#fed7aa",
+      border: "#f97316",
+    },
+    green: {
+      primary: "#22c55e",
+      secondary: "#4ade80",
+      accent: "#86efac",
+      background: "linear-gradient(135deg, #052e16, #064e3b, #047857)",
+      cardBackground: "linear-gradient(135deg, #064e3b, #052e16)",
+      text: "#f0fdf4",
+      textSecondary: "#bbf7d0",
+      border: "#22c55e",
+    },
+    brown: {
+      primary: "#92400e",
+      secondary: "#d97706",
+      accent: "#fbbf24",
+      background: "linear-gradient(135deg, #2a1300, #451a03, #7c2d12)",
+      cardBackground: "linear-gradient(135deg, #451a03, #2a1300)",
+      text: "#ffedd5",
+      textSecondary: "#fcd34d",
+      border: "#92400e",
+    },
+    gold: {
+      primary: "#d4af37",
+      secondary: "#facc15",
+      accent: "#fef08a",
+      background: "linear-gradient(135deg, #3b2a00, #5a4a00, #856800)",
+      cardBackground: "linear-gradient(135deg, #5a4a00, #3b2a00)",
+      text: "#fffbeb",
+      textSecondary: "#fef08a",
+      border: "#d4af37",
+    },
+  };
+  const fonts = {
+    default: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    arialRounded: "'Arial Rounded MT Bold', 'Arial', sans-serif",
+    burbank: "'Burbank Big Cd Bk', 'Arial Black', sans-serif",
+    comicSans: "'Comic Sans MS', 'Comic Sans', cursive, sans-serif",
+    gillSans: "'Gill Sans Ultra Bold Condensed', 'Gill Sans', sans-serif",
+    cooperBlack: "'Cooper Black', 'Arial Black', sans-serif",
+    tahoma: "'Tahoma', 'Geneva', 'Verdana', sans-serif",
+    showcardGothic: "'Showcard Gothic', 'Arial Black', sans-serif",
+    garamond: "'Garamond', 'serif'",
+    gadugi: "'Gadugi', 'sans-serif'",
+  };
   useEffect(() => {
     let cacheCount = 0;
     for (let i = 0; i < localStorage.length; i++) {
@@ -81,6 +205,20 @@ function App() {
     });
     swapGroupsRef.current = swapGroups;
     return swapGroups;
+  };
+  const hexToRgb = (hex) => {
+    if (!hex) return "0, 0, 0";
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((char) => char + char)
+        .join("");
+    }
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `${r}, ${g}, ${b}`;
   };
   const findArbitrageChains = (swapGroups, reverseQuotes) => {
     if (batchReverseLoading) {
@@ -205,7 +343,10 @@ function App() {
       if (!existingStats[walletAddress].loginDates.includes(currentDate)) {
         existingStats[walletAddress].loginDates.push(currentDate);
       }
+      existingStats[walletAddress].loginLedger =
+        ledgerIndex !== "Loading..." ? ledgerIndex : START_LEDGER;
       localStorage.setItem(loginStatsKey, JSON.stringify(existingStats));
+      setLoginLedger(ledgerIndex !== "Loading..." ? ledgerIndex : START_LEDGER);
     } catch (error) {
       console.error("Error tracking wallet login:", error);
     }
@@ -232,21 +373,22 @@ function App() {
   const renderProgressBar = (progress, message) => (
     <div
       style={{
-        background: "rgba(39, 162, 219, 0.2)",
-        color: "#60a5fa",
+        background: `rgba(${hexToRgb(themes[theme].primary)}, 0.2)`,
+        color: themes[theme].secondary,
         padding: "15px",
         borderRadius: "5px",
         margin: "15px 0",
         textAlign: "center",
-        border: "1px solid rgba(39, 162, 219, 0.3)",
+        border: `1px solid rgba(${hexToRgb(themes[theme].primary)}, 0.3)`,
         fontSize: "0.9rem",
+        fontFamily: fonts[fontFamily],
       }}
     >
       <div
         style={{
           width: "100%",
           height: "8px",
-          background: "rgba(39, 162, 219, 0.2)",
+          background: `rgba(${hexToRgb(themes[theme].primary)}, 0.2)`,
           borderRadius: "4px",
           margin: "0 auto 10px",
           overflow: "hidden",
@@ -256,15 +398,21 @@ function App() {
           style={{
             width: `${progress}%`,
             height: "100%",
-            background: "linear-gradient(90deg, #27a2db, #60a5fa)",
+            background: `linear-gradient(90deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
             borderRadius: "4px",
             transition: "width 0.3s ease",
           }}
         ></div>
       </div>
-      <p>{message}</p>
+      <p style={{ fontFamily: fonts[fontFamily] }}>{message}</p>
       {progress > 0 && (
-        <p style={{ fontSize: "0.7rem", marginTop: "5px" }}>
+        <p
+          style={{
+            fontSize: "0.7rem",
+            marginTop: "5px",
+            fontFamily: fonts[fontFamily],
+          }}
+        >
           {progress}% complete
         </p>
       )}
@@ -342,7 +490,13 @@ function App() {
       setError("Failed to initialize XRPL connection.");
     }
   };
-  const loadTransactions = async () => {
+  const loadTransactions = async (overrideFilterSinceLogin = null) => {
+    const useFilter =
+      overrideFilterSinceLogin !== null
+        ? overrideFilterSinceLogin
+        : filterSinceLogin;
+    const minLedger = useFilter ? loginLedger : START_LEDGER;
+
     if (!accountAddress || loadingCancelledRef.current) return;
     setLoadingTransactions(true);
     setLoadingProgress(0);
@@ -351,12 +505,15 @@ function App() {
       const cacheKey = `${CACHE_KEY_PREFIX}${accountAddress}`;
       const cachedData = localStorage.getItem(cacheKey);
       let cachedTransactions = [];
-      let lastProcessedLedger = START_LEDGER;
+      let lastProcessedLedger = minLedger;
       if (cachedData) {
         try {
           const parsedCache = JSON.parse(cachedData);
           cachedTransactions = parsedCache.transactions || [];
-          lastProcessedLedger = parsedCache.lastLedger || START_LEDGER;
+          lastProcessedLedger = Math.max(
+            parsedCache.lastLedger || START_LEDGER,
+            minLedger
+          );
         } catch (e) {
           console.error("Error parsing cached data:", e);
         }
@@ -440,7 +597,6 @@ function App() {
               localStorage.setItem(cacheKey, JSON.stringify(cacheData));
             } catch (e) {
               console.error("Error caching transactions:", e);
-              // Clear cache entry if storage fails
               try {
                 localStorage.removeItem(cacheKey);
               } catch (clearError) {
@@ -473,6 +629,332 @@ function App() {
       setError("Failed to load transactions.");
       setLoadingTransactions(false);
       setLoadingProgress(0);
+    }
+  };
+  const fetchTokenXrpPrice = async (currency, issuer) => {
+    if (currency === "XRP") return 1;
+    if (!issuer) return null;
+    try {
+      const ws = new WebSocket("wss://s1.ripple.com:443");
+      const result = await new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.close();
+          }
+          resolve(null);
+        }, 5000);
+        ws.onopen = () => {
+          const request = {
+            id: Math.floor(Math.random() * 1000) + 1000,
+            command: "amm_info",
+            asset: {
+              currency: "XRP",
+            },
+            asset2: {
+              currency: currency,
+              issuer: issuer,
+            },
+          };
+          ws.send(JSON.stringify(request));
+        };
+        ws.onmessage = (event) => {
+          clearTimeout(timeout);
+          const data = JSON.parse(event.data);
+
+          if (data.result) {
+            try {
+              let poolXrp,
+                poolToken,
+                tradingFeeBasisPoints = 1000;
+              if (data.result.amm) {
+                if (typeof data.result.amm.amount === "string") {
+                  poolXrp = parseFloat(data.result.amm.amount) / 1000000;
+                } else if (
+                  data.result.amm.amount &&
+                  data.result.amm.amount.value
+                ) {
+                  poolXrp = parseFloat(data.result.amm.amount.value);
+                } else {
+                  poolXrp = parseFloat(data.result.amm.amount) / 1000000;
+                }
+                if (data.result.amm.amount2 && data.result.amm.amount2.value) {
+                  poolToken = parseFloat(data.result.amm.amount2.value);
+                } else {
+                  poolToken = parseFloat(data.result.amm.amount2);
+                }
+                if (data.result.amm.trading_fee) {
+                  tradingFeeBasisPoints = data.result.amm.trading_fee;
+                }
+              }
+              if (
+                isNaN(poolXrp) ||
+                isNaN(poolToken) ||
+                poolXrp <= 0 ||
+                poolToken <= 0
+              ) {
+                ws.close();
+                resolve(null);
+                return;
+              }
+              const tradingFee = tradingFeeBasisPoints / 100000;
+              const inputAmount = 1;
+              const inputAfterFee = inputAmount * (1 - tradingFee);
+              const tokensReceived =
+                (inputAfterFee * poolToken) / (poolXrp + inputAfterFee);
+              const xrpPerToken = 1 / tokensReceived;
+              ws.close();
+              resolve(xrpPerToken);
+            } catch (e) {
+              console.error(`Error processing AMM data for ${currency}:`, e);
+              ws.close();
+              resolve(null);
+            }
+          } else {
+            console.log(`No AMM pool found for ${currency}`);
+            ws.close();
+            resolve(null);
+          }
+        };
+        ws.onerror = (error) => {
+          clearTimeout(timeout);
+          ws.close();
+          resolve(null);
+        };
+      });
+      return result;
+    } catch (error) {
+      console.error(`Error fetching price for ${currency}/${issuer}:`, error);
+      return null;
+    }
+  };
+  const debugTokenCurrencies = () => {
+    if (transactions.length === 0) return;
+
+    const currencies = new Set();
+    transactions.forEach((swap) => {
+      if (swap.c1 !== "XRP") currencies.add(swap.c1);
+      if (swap.c2 !== "XRP") currencies.add(swap.c2);
+    });
+  };
+  const renderFutureComponent = () => {
+    if (transactions.length === 0) {
+      return null;
+    }
+    if (batchReverseLoading) {
+      return (
+        <div
+          style={{
+            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            borderRadius: "15px",
+            padding: "15px",
+            border: "2px solid #27a2db",
+            height: "35%",
+            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "bold",
+              color: "#27a2db",
+              textAlign: "center",
+              marginBottom: "10px",
+            }}
+          >
+            📊 Swap Profits
+          </h3>
+          <div
+            style={{
+              width: "30px",
+              height: "30px",
+              border: "3px solid rgba(39, 162, 219, 0.3)",
+              borderTop: "3px solid #27a2db",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              marginBottom: "15px",
+            }}
+          ></div>
+          <p
+            style={{
+              color: "#94a3b8",
+              fontSize: "0.9rem",
+              textAlign: "center",
+            }}
+          >
+            Calculating swap profits...
+          </p>
+        </div>
+      );
+    }
+    if (Object.keys(reverseQuotes).length === 0) {
+      return (
+        <div
+          style={{
+            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            borderRadius: "15px",
+            padding: "15px",
+            border: "2px solid #27a2db",
+            height: "35%",
+            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "bold",
+              color: "#27a2db",
+              textAlign: "center",
+              marginBottom: "10px",
+            }}
+          >
+            📊 Swap Profits
+          </h3>
+          <p
+            style={{
+              color: "#94a3b8",
+              fontSize: "0.9rem",
+              textAlign: "center",
+            }}
+          >
+            Waiting for AMM data...
+          </p>
+        </div>
+      );
+    }
+    const tokenData = calculateRealizedProfitsByToken();
+    const allTokens = [
+      ...tokenData.profitable.map((token) => ({ ...token, isDeficit: false })),
+      ...tokenData.deficit.map((token) => ({ ...token, isDeficit: true })),
+    ].sort((a, b) => {
+      if (!a.isDeficit && !b.isDeficit) {
+        return b.totalNetAmount - a.totalNetAmount;
+      }
+      if (a.isDeficit && b.isDeficit) {
+        return a.totalNetAmount - b.totalNetAmount;
+      }
+      return a.isDeficit ? 1 : -1;
+    });
+    return (
+      <TokenPositions
+        allTokens={allTokens}
+        fetchTokenXrpPrice={fetchTokenXrpPrice}
+        formatValueWithCommas={formatValueWithCommas}
+        formatCurrencyCode={formatCurrencyCode}
+        theme={theme}
+        themes={themes}
+        fontFamily={fontFamily}
+        fonts={fonts}
+      />
+    );
+  };
+  const fetchComprehensiveTokenData = async (currencyCode, issuer) => {
+    try {
+      const accountInfo = await new Promise((resolve, reject) => {
+        const ws = new WebSocket("wss://s1.ripple.com:443");
+        const timeout = setTimeout(() => {
+          if (ws.readyState === WebSocket.OPEN) ws.close();
+          resolve(null);
+        }, 5000);
+        ws.onopen = () => {
+          ws.send(
+            JSON.stringify({
+              id: 1,
+              command: "account_info",
+              account: issuer,
+              strict: true,
+            })
+          );
+        };
+        ws.onmessage = (event) => {
+          clearTimeout(timeout);
+          const data = JSON.parse(event.data);
+          if (data.result?.account_data) {
+            ws.close();
+            resolve({
+              account: data.result.account_data.Account,
+              xrpBalance: parseInt(data.result.account_data.Balance) / 1000000,
+              sequence: data.result.account_data.Sequence,
+              ownerCount: data.result.account_data.OwnerCount,
+            });
+          } else {
+            ws.close();
+            resolve(null);
+          }
+        };
+        ws.onerror = () => {
+          clearTimeout(timeout);
+          ws.close();
+          resolve(null);
+        };
+      });
+      const trustLines = await new Promise((resolve, reject) => {
+        const ws = new WebSocket("wss://s1.ripple.com:443");
+        const timeout = setTimeout(() => {
+          if (ws.readyState === WebSocket.OPEN) ws.close();
+          resolve(null);
+        }, 8000);
+        ws.onopen = () => {
+          ws.send(
+            JSON.stringify({
+              id: 2,
+              command: "account_lines",
+              account: issuer,
+            })
+          );
+        };
+        ws.onmessage = (event) => {
+          clearTimeout(timeout);
+          const data = JSON.parse(event.data);
+          if (data.result?.lines) {
+            const tokenLines = data.result.lines.filter(
+              (line) => line.currency === currencyCode
+            );
+            let totalSupply = 0;
+            let holders = 0;
+            tokenLines.forEach((line) => {
+              const balance = Math.abs(parseFloat(line.balance));
+              if (balance > 0) {
+                totalSupply += balance;
+                holders++;
+              }
+            });
+            ws.close();
+            resolve({
+              trustlines: tokenLines.length,
+              holders: holders,
+              totalSupply: totalSupply,
+              lines: tokenLines,
+            });
+          } else {
+            ws.close();
+            resolve(null);
+          }
+        };
+        ws.onerror = () => {
+          clearTimeout(timeout);
+          ws.close();
+          resolve(null);
+        };
+      });
+      return {
+        accountInfo,
+        trustLines,
+        currency: currencyCode,
+        issuer: issuer,
+      };
+    } catch (error) {
+      console.error("Error fetching comprehensive token data:", error);
+      return null;
     }
   };
   const cleanupCacheAggressively = () => {
@@ -1029,10 +1511,15 @@ function App() {
     if (!transactions.length || loadingTransactions || batchReverseLoading)
       return;
     const interval = setInterval(() => {
-      loadBatchReverseQuotes();
+      loadTransactions();
     }, 120000);
     return () => clearInterval(interval);
-  }, [transactions.length, loadingTransactions, batchReverseLoading]);
+  }, [
+    transactions.length,
+    loadingTransactions,
+    batchReverseLoading,
+    filterSinceLogin,
+  ]);
   useEffect(() => {
     if (!selectedSwapPair || ammLoading) return;
     const interval = setInterval(() => {
@@ -1240,15 +1727,18 @@ function App() {
         <div
           ref={ammPoolRef}
           style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            background: themes[theme].cardBackground,
             borderRadius: "15px",
             padding: "15px",
-            border: "2px solid #27a2db",
+            border: `2px solid ${themes[theme].border}`,
             height: "30%",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            boxShadow: `0 4px 15px rgba(${hexToRgb(
+              themes[theme].primary
+            )}, 0.2)`,
             width: "100%",
             display: "flex",
             flexDirection: "column",
+            fontFamily: fonts[fontFamily],
           }}
         >
           <div>
@@ -1256,13 +1746,20 @@ function App() {
               style={{
                 fontSize: "1.1rem",
                 fontWeight: "bold",
-                color: "#27a2db",
+                color: themes[theme].primary,
                 marginBottom: "10px",
+                fontFamily: fonts[fontFamily],
               }}
             >
               AMM Pool
             </div>
-            <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+            <p
+              style={{
+                color: themes[theme].textSecondary,
+                fontSize: "0.9rem",
+                fontFamily: fonts[fontFamily],
+              }}
+            >
               Select a swap pair to view AMM data
             </p>
           </div>
@@ -1275,15 +1772,16 @@ function App() {
       <div
         ref={ammPoolRef}
         style={{
-          background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+          background: themes[theme].cardBackground,
           borderRadius: "15px",
           padding: "15px",
-          border: "2px solid #27a2db",
+          border: `2px solid ${themes[theme].border}`,
           height: "30%",
-          boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+          boxShadow: `0 4px 15px rgba(${hexToRgb(themes[theme].primary)}, 0.2)`,
           width: "100%",
           display: "flex",
           flexDirection: "column",
+          fontFamily: fonts[fontFamily],
         }}
       >
         <div style={{ marginBottom: "10px" }}>
@@ -1299,8 +1797,9 @@ function App() {
               style={{
                 fontSize: "1.1rem",
                 fontWeight: "bold",
-                color: "#27a2db",
+                color: themes[theme].primary,
                 textAlign: "left",
+                fontFamily: fonts[fontFamily],
               }}
             >
               AMM Pool: {as1}/{as2}
@@ -1310,33 +1809,38 @@ function App() {
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
-                textAlign: "right",
+                textAlign: "center",
+                flexGrow: 1,
+                justifyContent: "center",
               }}
             >
               <div
                 style={{
                   fontSize: "0.7rem",
-                  color: "#94a3b8",
+                  color: themes[theme].textSecondary,
+                  lineHeight: "1.4",
+                  fontFamily: fonts[fontFamily],
                 }}
               >
                 {renderAmmPrices(currentPair)}
               </div>
-              <button
-                onClick={swapAssetPositions}
-                style={{
-                  background: "linear-gradient(135deg, #27a2db, #1565c0)",
-                  color: "#ffffff",
-                  border: "none",
-                  padding: "4px 8px",
-                  borderRadius: "20px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  fontSize: "0.7rem",
-                }}
-              >
-                Swap Assets
-              </button>
             </div>
+            <button
+              onClick={swapAssetPositions}
+              style={{
+                background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                color: themes[theme].text,
+                border: "none",
+                padding: "4px 8px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "0.7rem",
+                fontFamily: fonts[fontFamily],
+              }}
+            >
+              Swap Assets
+            </button>
           </div>
         </div>
         {ammLoading ? (
@@ -1347,21 +1851,24 @@ function App() {
               alignItems: "center",
               justifyContent: "center",
               height: "calc(100% - 30px)",
-              color: "#94a3b8",
+              color: themes[theme].textSecondary,
+              fontFamily: fonts[fontFamily],
             }}
           >
             <div
               style={{
                 width: "30px",
                 height: "30px",
-                border: "3px solid rgba(39, 162, 219, 0.3)",
-                borderTop: "3px solid #27a2db",
+                border: `3px solid rgba(${hexToRgb(
+                  themes[theme].primary
+                )}, 0.3)`,
+                borderTop: `3px solid ${themes[theme].primary}`,
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
                 marginBottom: "10px",
               }}
             ></div>
-            <p>Loading AMM pool...</p>
+            <p style={{ fontFamily: fonts[fontFamily] }}>Loading AMM pool...</p>
           </div>
         ) : ammPoolData ? (
           <>
@@ -1376,10 +1883,10 @@ function App() {
               <div style={{ width: "45%" }}>
                 <div
                   style={{
-                    background: "rgba(15, 23, 42, 0.8)",
+                    background: `rgba(${hexToRgb(themes[theme].primary)}, 0.1)`,
                     borderRadius: "12px",
                     padding: "8px",
-                    border: "2px solid #27a2db",
+                    border: `2px solid ${themes[theme].border}`,
                     height: "100%",
                   }}
                 >
@@ -1393,18 +1900,20 @@ function App() {
                   >
                     <h4
                       style={{
-                        color: "#60a5fa",
+                        color: themes[theme].secondary,
                         margin: "0",
                         fontSize: "0.9rem",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       Sell {as1}
                     </h4>
                     <p
                       style={{
-                        color: "#94a3b8",
+                        color: themes[theme].textSecondary,
                         fontSize: "0.6rem",
                         margin: "0",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       Issuer: {currentPair.asset1.issuer.substring(0, 6)}...
@@ -1414,7 +1923,8 @@ function App() {
                     style={{
                       margin: "5px 0 0 0",
                       fontSize: "0.8rem",
-                      color: "#ffffff",
+                      color: themes[theme].text,
+                      fontFamily: fonts[fontFamily],
                     }}
                   >
                     Amount:
@@ -1426,13 +1936,16 @@ function App() {
                         width: "100%",
                         padding: "6px",
                         marginTop: "3px",
-                        border: "2px solid #27a2db",
+                        border: `2px solid ${themes[theme].border}`,
                         borderRadius: "8px",
-                        background: "rgba(30, 58, 95, 0.5)",
-                        color: "#ffffff",
+                        background: `rgba(${hexToRgb(
+                          themes[theme].primary
+                        )}, 0.1)`,
+                        color: themes[theme].text,
                         fontSize: "0.8rem",
                         fontWeight: "500",
                         textAlign: "center",
+                        fontFamily: fonts[fontFamily],
                       }}
                       onInput={(e) => {
                         handleAmmCalculation(e.target.value, true);
@@ -1443,9 +1956,9 @@ function App() {
               </div>
               <div
                 style={{
-                  background: "linear-gradient(135deg, #27a2db, #1565c0)",
-                  color: "#ffffff",
-                  border: "2px solid #27a2db",
+                  background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                  color: themes[theme].text,
+                  border: `2px solid ${themes[theme].border}`,
                   borderRadius: "50%",
                   width: "30px",
                   height: "30px",
@@ -1464,10 +1977,10 @@ function App() {
               <div style={{ width: "45%" }}>
                 <div
                   style={{
-                    background: "rgba(15, 23, 42, 0.8)",
+                    background: `rgba(${hexToRgb(themes[theme].primary)}, 0.1)`,
                     borderRadius: "12px",
                     padding: "8px",
-                    border: "2px solid #27a2db",
+                    border: `2px solid ${themes[theme].border}`,
                     height: "100%",
                   }}
                 >
@@ -1481,18 +1994,20 @@ function App() {
                   >
                     <h4
                       style={{
-                        color: "#60a5fa",
+                        color: themes[theme].secondary,
                         margin: "0",
                         fontSize: "0.9rem",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       Buy {as2}
                     </h4>
                     <p
                       style={{
-                        color: "#94a3b8",
+                        color: themes[theme].textSecondary,
                         fontSize: "0.6rem",
                         margin: "0",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       Issuer: {currentPair.asset2.issuer.substring(0, 6)}...
@@ -1502,7 +2017,8 @@ function App() {
                     style={{
                       margin: "5px 0 0 0",
                       fontSize: "0.8rem",
-                      color: "#ffffff",
+                      color: themes[theme].text,
+                      fontFamily: fonts[fontFamily],
                     }}
                   >
                     Amount:
@@ -1515,13 +2031,16 @@ function App() {
                         width: "100%",
                         padding: "6px",
                         marginTop: "3px",
-                        border: "2px solid #27a2db",
+                        border: `2px solid ${themes[theme].border}`,
                         borderRadius: "8px",
-                        background: "rgba(30, 58, 95, 0.5)",
-                        color: "#ffffff",
+                        background: `rgba(${hexToRgb(
+                          themes[theme].primary
+                        )}, 0.1)`,
+                        color: themes[theme].text,
                         fontSize: "0.8rem",
                         fontWeight: "500",
                         textAlign: "center",
+                        fontFamily: fonts[fontFamily],
                       }}
                     />
                   </p>
@@ -1533,7 +2052,8 @@ function App() {
                 textAlign: "center",
                 marginTop: "5px",
                 fontSize: "0.7rem",
-                color: "#94a3b8",
+                color: themes[theme].textSecondary,
+                fontFamily: fonts[fontFamily],
               }}
             >
               Pool Fee: 1%
@@ -1547,17 +2067,20 @@ function App() {
               alignItems: "center",
               justifyContent: "center",
               height: "calc(100% - 30px)",
-              color: "#94a3b8",
+              color: themes[theme].textSecondary,
+              fontFamily: fonts[fontFamily],
             }}
           >
-            <p>❌ No AMM pool found for this pair</p>
+            <p style={{ fontFamily: fonts[fontFamily] }}>
+              ❌ No AMM pool found for this pair
+            </p>
             <button
               onClick={() =>
                 loadAmmPoolData(currentPair.asset1, currentPair.asset2)
               }
               style={{
-                background: "linear-gradient(135deg, #27a2db, #1565c0)",
-                color: "#ffffff",
+                background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                color: themes[theme].text,
                 border: "none",
                 padding: "6px 12px",
                 borderRadius: "20px",
@@ -1565,238 +2088,13 @@ function App() {
                 fontWeight: "bold",
                 marginTop: "8px",
                 fontSize: "0.8rem",
+                fontFamily: fonts[fontFamily],
               }}
             >
               Retry
             </button>
           </div>
         )}
-      </div>
-    );
-  };
-  const renderFutureComponent = () => {
-    if (transactions.length === 0) {
-      return null;
-    }
-    if (batchReverseLoading) {
-      return (
-        <div
-          style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
-            borderRadius: "15px",
-            padding: "15px",
-            border: "2px solid #27a2db",
-            height: "35%",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "bold",
-              color: "#27a2db",
-              textAlign: "center",
-              marginBottom: "10px",
-            }}
-          >
-            📊 Swap Profits
-          </h3>
-          <div
-            style={{
-              width: "30px",
-              height: "30px",
-              border: "3px solid rgba(39, 162, 219, 0.3)",
-              borderTop: "3px solid #27a2db",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              marginBottom: "15px",
-            }}
-          ></div>
-          <p
-            style={{
-              color: "#94a3b8",
-              fontSize: "0.9rem",
-              textAlign: "center",
-            }}
-          >
-            Calculating swap profits...
-          </p>
-        </div>
-      );
-    }
-    if (Object.keys(reverseQuotes).length === 0) {
-      return (
-        <div
-          style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
-            borderRadius: "15px",
-            padding: "15px",
-            border: "2px solid #27a2db",
-            height: "35%",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "bold",
-              color: "#27a2db",
-              textAlign: "center",
-              marginBottom: "10px",
-            }}
-          >
-            📊 Swap Profits
-          </h3>
-          <p
-            style={{
-              color: "#94a3b8",
-              fontSize: "0.9rem",
-              textAlign: "center",
-            }}
-          >
-            Waiting for AMM data...
-          </p>
-        </div>
-      );
-    }
-    const tokenData = calculateRealizedProfitsByToken();
-    const allTokens = [
-      ...tokenData.profitable.map((token) => ({ ...token, isDeficit: false })),
-      ...tokenData.deficit.map((token) => ({ ...token, isDeficit: true })),
-    ].sort((a, b) => {
-      if (!a.isDeficit && !b.isDeficit) {
-        return b.totalNetAmount - a.totalNetAmount;
-      }
-      if (a.isDeficit && b.isDeficit) {
-        return a.totalNetAmount - b.totalNetAmount;
-      }
-      return a.isDeficit ? 1 : -1;
-    });
-    return (
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
-          borderRadius: "15px",
-          padding: "15px",
-          border: "2px solid #27a2db",
-          height: "35%",
-          boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "10px",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "bold",
-              color: "#27a2db",
-              textAlign: "center",
-              margin: 0,
-            }}
-          >
-            📊 Token Positions
-          </h3>
-        </div>
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: "0.8rem",
-            color: "#cbd5e1",
-            width: "100%",
-            flexGrow: 1,
-            overflowY: "auto",
-            paddingRight: "15px",
-          }}
-        >
-          {allTokens.length > 0 ? (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: "bold",
-                  padding: "4px 0",
-                  borderBottom: "1px solid rgba(39, 162, 219, 0.3)",
-                  color: "#60a5fa",
-                }}
-              >
-                <div>Asset</div>
-                <div>Amount</div>
-              </div>
-              {allTokens.map((token, index) => (
-                <div
-                  key={index}
-                  style={{
-                    marginBottom: "6px",
-                    padding: "4px 0",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontWeight: "bold",
-                      color: "#60a5fa",
-                      textAlign: "left",
-                      minWidth: "80px",
-                    }}
-                  >
-                    {formatCurrencyCode(token.currency)}
-                  </div>
-                  <div
-                    style={{
-                      color: token.isDeficit ? "#f87171" : "#4ade80",
-                      textAlign: "right",
-                      minWidth: "120px",
-                    }}
-                  >
-                    {token.formattedAmount}
-                  </div>
-                </div>
-              ))}
-              <div
-                style={{
-                  borderTop: "1px solid rgba(39, 162, 219, 0.3)",
-                  marginTop: "8px",
-                  paddingTop: "8px",
-                  fontWeight: "bold",
-                  fontSize: "0.85rem",
-                }}
-              ></div>
-            </>
-          ) : (
-            <div
-              style={{
-                textAlign: "center",
-                color: "#94a3b8",
-                fontStyle: "italic",
-                padding: "20px 0",
-              }}
-            >
-              No token positions found
-            </div>
-          )}
-        </div>
       </div>
     );
   };
@@ -1813,19 +2111,27 @@ function App() {
       if (!tokenBalances[soldTokenKey]) {
         tokenBalances[soldTokenKey] = {
           currency: formattedC1,
+          originalCurrency: swap.c1,
           issuer: swap.i1,
           balance: 0,
+          totalNetAmount: 0,
         };
       }
       tokenBalances[soldTokenKey].balance -= swap.v1;
+      tokenBalances[soldTokenKey].totalNetAmount =
+        tokenBalances[soldTokenKey].balance;
       if (!tokenBalances[boughtTokenKey]) {
         tokenBalances[boughtTokenKey] = {
           currency: formattedC2,
+          originalCurrency: swap.c2,
           issuer: swap.i2,
           balance: 0,
+          totalNetAmount: 0,
         };
       }
       tokenBalances[boughtTokenKey].balance += swap.v2;
+      tokenBalances[boughtTokenKey].totalNetAmount =
+        tokenBalances[boughtTokenKey].balance;
     });
     const profitableTokens = [];
     const deficitTokens = [];
@@ -1856,7 +2162,10 @@ function App() {
           existing.totalNetAmount += token.totalNetAmount;
           existing.balance += token.balance;
         } else {
-          consolidated.set(key, { ...token });
+          consolidated.set(key, {
+            ...token,
+            totalNetAmount: token.totalNetAmount,
+          });
         }
       });
       return Array.from(consolidated.values()).map((token) => ({
@@ -1883,25 +2192,29 @@ function App() {
       return (
         <div
           style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            background: themes[theme].cardBackground,
             borderRadius: "15px",
             padding: "15px",
-            border: "2px solid #27a2db",
+            border: `2px solid ${themes[theme].border}`,
             height: "35%",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            boxShadow: `0 4px 15px rgba(${hexToRgb(
+              themes[theme].primary
+            )}, 0.2)`,
             width: "100%",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            fontFamily: fonts[fontFamily],
           }}
         >
           <h3
             style={{
               fontSize: "1.1rem",
               fontWeight: "bold",
-              color: "#27a2db",
+              color: themes[theme].primary,
               marginBottom: "10px",
+              fontFamily: fonts[fontFamily],
             }}
           >
             🔗 Sequential Swap Chains
@@ -1910,8 +2223,8 @@ function App() {
             style={{
               width: "30px",
               height: "30px",
-              border: "3px solid rgba(39, 162, 219, 0.3)",
-              borderTop: "3px solid #27a2db",
+              border: `3px solid rgba(${hexToRgb(themes[theme].primary)}, 0.3)`,
+              borderTop: `3px solid ${themes[theme].primary}`,
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
               marginBottom: "15px",
@@ -1919,14 +2232,22 @@ function App() {
           ></div>
           <p
             style={{
-              color: "#94a3b8",
+              color: themes[theme].textSecondary,
               fontSize: "0.9rem",
               textAlign: "center",
+              fontFamily: fonts[fontFamily],
             }}
           >
             Waiting for AMM data to load...
           </p>
-          <p style={{ color: "#60a5fa", fontSize: "0.8rem", marginTop: "5px" }}>
+          <p
+            style={{
+              color: themes[theme].secondary,
+              fontSize: "0.8rem",
+              marginTop: "5px",
+              fontFamily: fonts[fontFamily],
+            }}
+          >
             {Object.keys(reverseQuotes).length} pairs processed
           </p>
         </div>
@@ -1940,35 +2261,40 @@ function App() {
       return (
         <div
           style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            background: themes[theme].cardBackground,
             borderRadius: "15px",
             padding: "15px",
-            border: "2px solid #27a2db",
+            border: `2px solid ${themes[theme].border}`,
             height: "35%",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            boxShadow: `0 4px 15px rgba(${hexToRgb(
+              themes[theme].primary
+            )}, 0.2)`,
             width: "100%",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            fontFamily: fonts[fontFamily],
           }}
         >
           <h3
             style={{
               fontSize: "1.1rem",
               fontWeight: "bold",
-              color: "#27a2db",
+              color: themes[theme].primary,
               textAlign: "center",
               marginBottom: "10px",
+              fontFamily: fonts[fontFamily],
             }}
           >
             🔗 Sequential Swap Chains
           </h3>
           <p
             style={{
-              color: "#94a3b8",
+              color: themes[theme].textSecondary,
               fontSize: "0.9rem",
               textAlign: "center",
+              fontFamily: fonts[fontFamily],
             }}
           >
             No profitable Sequential Swap Chains found
@@ -1982,7 +2308,13 @@ function App() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-              <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+              <span
+                style={{
+                  color: themes[theme].textSecondary,
+                  fontSize: "0.8rem",
+                  fontFamily: fonts[fontFamily],
+                }}
+              >
                 Threshold:
               </span>
               <input
@@ -2001,9 +2333,10 @@ function App() {
               />
               <span
                 style={{
-                  color: "#60a5fa",
+                  color: themes[theme].secondary,
                   fontSize: "0.8rem",
                   minWidth: "40px",
+                  fontFamily: fonts[fontFamily],
                 }}
               >
                 {chainProfitThreshold}%
@@ -2012,7 +2345,6 @@ function App() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-
                 if (
                   transactions.length > 0 &&
                   Object.keys(reverseQuotes).length > 0
@@ -2023,14 +2355,15 @@ function App() {
                 }
               }}
               style={{
-                background: "linear-gradient(135deg, #27a2db, #1565c0)",
-                color: "#ffffff",
-                border: "1px solid #27a2db",
+                background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                color: themes[theme].text,
+                border: `1px solid ${themes[theme].border}`,
                 padding: "4px 12px",
                 borderRadius: "15px",
                 cursor: "pointer",
                 fontWeight: "bold",
                 fontSize: "0.8rem",
+                fontFamily: fonts[fontFamily],
               }}
             >
               ↻ Refresh
@@ -2043,22 +2376,25 @@ function App() {
       return (
         <div
           style={{
-            background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
+            background: themes[theme].cardBackground,
             borderRadius: "15px",
             padding: "12px",
-            border: "2px solid #27a2db",
-            boxShadow: "0 4px 15px rgba(39, 162, 219, 0.2)",
+            border: `2px solid ${themes[theme].border}`,
+            boxShadow: `0 4px 15px rgba(${hexToRgb(
+              themes[theme].primary
+            )}, 0.2)`,
             width: "100%",
             height: "35%",
             display: "flex",
             flexDirection: "column",
+            fontFamily: fonts[fontFamily],
           }}
         >
           <h3
             style={{
               fontSize: "1.1rem",
               fontWeight: "bold",
-              color: "#27a2db",
+              color: themes[theme].primary,
               marginBottom: "8px",
               textAlign: "center",
               flexShrink: 0,
@@ -2066,6 +2402,7 @@ function App() {
               alignItems: "center",
               justifyContent: "center",
               gap: "10px",
+              fontFamily: fonts[fontFamily],
             }}
           >
             <span>🔗 Sequential Swap Chains ({arbitrageChains.length})</span>
@@ -2086,9 +2423,10 @@ function App() {
               />
               <span
                 style={{
-                  color: "#60a5fa",
+                  color: themes[theme].secondary,
                   fontSize: "0.7rem",
                   minWidth: "40px",
+                  fontFamily: fonts[fontFamily],
                 }}
               >
                 {chainProfitThreshold}%
@@ -2102,9 +2440,9 @@ function App() {
                 setArbitrageChains(chains);
               }}
               style={{
-                background: "linear-gradient(135deg, #27a2db, #1565c0)",
-                color: "#ffffff",
-                border: "1px solid #27a2db",
+                background: `linear-gradient(135deg, ${themes[theme].primary}, ${themes[theme].secondary})`,
+                color: themes[theme].text,
+                border: `1px solid ${themes[theme].border}`,
                 padding: "2px 6px",
                 borderRadius: "12px",
                 cursor: "pointer",
@@ -2115,6 +2453,7 @@ function App() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                fontFamily: fonts[fontFamily],
               }}
               title="Recalculate arbitrage chains"
             >
@@ -2132,11 +2471,13 @@ function App() {
               <div
                 key={index}
                 style={{
-                  background: "rgba(15, 23, 42, 0.7)",
+                  background: `rgba(${hexToRgb(themes[theme].primary)}, 0.1)`,
                   borderRadius: "8px",
                   padding: "8px",
                   marginBottom: "6px",
-                  border: "1px solid rgba(39, 162, 219, 0.3)",
+                  border: `1px solid rgba(${hexToRgb(
+                    themes[theme].primary
+                  )}, 0.3)`,
                   display: "flex",
                   flexDirection: "column",
                 }}
@@ -2144,9 +2485,10 @@ function App() {
                 <div
                   style={{
                     fontWeight: "bold",
-                    color: "#60a5fa",
+                    color: themes[theme].secondary,
                     marginBottom: "4px",
                     fontSize: "0.85rem",
+                    fontFamily: fonts[fontFamily],
                   }}
                 >
                   {chain.chainPath}
@@ -2168,11 +2510,12 @@ function App() {
                   >
                     <div
                       style={{
-                        color: "#94a3b8",
+                        color: themes[theme].textSecondary,
                         fontSize: "0.7rem",
                         display: "flex",
                         flexWrap: "wrap",
                         gap: "8px",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       {chain.pairs.map((pair, pairIndex) => (
@@ -2184,6 +2527,7 @@ function App() {
                               color: pair.reverseQuote?.isProfit
                                 ? "#4ade80"
                                 : "#f87171",
+                              fontFamily: fonts[fontFamily],
                             }}
                           >
                             ({pair.reverseQuote?.profitPercent.toFixed(2)}%)
@@ -2199,6 +2543,7 @@ function App() {
                         minWidth: "120px",
                         textAlign: "right",
                         paddingLeft: "10px",
+                        fontFamily: fonts[fontFamily],
                       }}
                     >
                       Total Profit: +{chain.totalProfitPercent.toFixed(2)}%
@@ -2287,17 +2632,6 @@ function App() {
         </div>
       );
     }
-    const isMemeToken = (currency) => {
-      const memeTokens = [
-        "404",
-        "245452554D500000000000000000000000000000", // $Trump
-        "4D454C414E494100000000000000000000000000", // Melania
-        "4245415200000000000000000000000000000000", // BEAR
-        "414C4C494E000000000000000000000000000000", // ALLIN
-        "424152524F4E5452554D50000000000000000000", // BARRONTRUMP
-      ];
-      return memeTokens.includes(currency);
-    };
     const groupedSwaps = {};
     transactions.forEach((swap) => {
       const pairKey = getPairKey(
@@ -2358,6 +2692,11 @@ function App() {
             formatCurrencyCode={formatCurrencyCode}
             formatValueWithCommas={formatValueWithCommas}
             truncateAddress={truncateAddress}
+            fetchComprehensiveTokenData={fetchComprehensiveTokenData}
+            theme={theme}
+            themes={themes}
+            fontFamily={fontFamily}
+            fonts={fonts}
           />
         ))}
       </div>
@@ -2405,7 +2744,7 @@ function App() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            AMM Token Swapping Turbocharger
+            Token Swapping Turbocharger
           </h2>
           <div
             style={{
@@ -2496,8 +2835,8 @@ function App() {
   return (
     <div
       style={{
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        background: "linear-gradient(135deg, #0a1429, #0f1c2e, #1e3a5f)",
+        fontFamily: fonts[fontFamily],
+        background: themes[theme].background,
         minHeight: "100vh",
         position: "relative",
         margin: 0,
@@ -2523,84 +2862,104 @@ function App() {
       }
     `}</style>
       <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .switch {
-          position: relative;
-          display: inline-block;
-          width: 40px;
-          height: 20px;
-        }
-        .switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          transition: .4s;
-          border-radius: 20px;
-        }
-        .slider:before {
-          position: absolute;
-          content: "";
-          height: 16px;
-          width: 16px;
-          left: 2px;
-          bottom: 2px;
-          background-color: white;
-          transition: .4s;
-          border-radius: 50%;
-        }
-        input:checked + .slider {
-          background: linear-gradient(135deg, #27a2db, #1565c0);
-        }
-        input:checked + .slider:before {
-          transform: translateX(20px);
-        }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background: linear-gradient(135deg, #27a2db, #1565c0);
+  }
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
       `}</style>
       <nav
         style={{
           position: "relative",
-          background: "linear-gradient(135deg, #1e3a5f, #0f1c2e)",
-          color: "#ffffff",
+          background:
+            themes[theme]?.cardBackground || themes.blue.cardBackground,
+          color: themes[theme]?.text || themes.blue.text,
           padding: "15px 20px",
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
           zIndex: "1000",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "2px solid #27a2db",
+          borderBottom: `2px solid ${
+            themes[theme]?.border || themes.blue.border
+          }`,
           margin: "0",
+          fontFamily: fonts[fontFamily] || fonts.default,
+          flexWrap: "wrap",
+          gap: "10px",
         }}
       >
         <h1
           style={{
-            fontSize: "1.5rem",
-            background: "linear-gradient(45deg, #27a2db, #60a5fa, #93c5fd)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            fontSize: "2rem",
+            color: themes[theme].primary,
+            fontFamily: fonts[fontFamily],
+            margin: 0,
+            minWidth: "300px",
+            fontWeight: "bold",
           }}
         >
-          AMM Token Swapping Turbocharger
+          Token Swapping Turbocharger
         </h1>
-        <div style={{ display: "flex", gap: "15px", fontSize: "0.9rem" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "15px",
+            fontSize: "0.9rem",
+            alignItems: "center",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
           <div
             style={{
-              background: "rgba(30, 58, 95, 0.8)",
+              background:
+                themes[theme]?.cardBackground || themes.blue.cardBackground,
               padding: "8px 12px",
               borderRadius: "20px",
-              border: "1px solid #27a2db",
+              border: `1px solid ${
+                themes[theme]?.border || themes.blue.border
+              }`,
               fontWeight: "500",
-              color: "#e2e8f0",
+              color: themes[theme]?.textSecondary || themes.blue.textSecondary,
             }}
           >
             Address: {accountAddress.substring(0, 10)}...
@@ -2608,29 +2967,118 @@ function App() {
           </div>
           <div
             style={{
-              background: "rgba(30, 58, 95, 0.8)",
+              background:
+                themes[theme]?.cardBackground || themes.blue.cardBackground,
               padding: "8px 12px",
               borderRadius: "20px",
-              border: "1px solid #27a2db",
+              border: `1px solid ${
+                themes[theme]?.border || themes.blue.border
+              }`,
               fontWeight: "500",
-              color: "#e2e8f0",
+              color: themes[theme]?.textSecondary || themes.blue.textSecondary,
+            }}
+          >
+            Update Swaps
+            <label className="switch" style={{ marginLeft: "8px" }}>
+              <input
+                type="checkbox"
+                checked={filterSinceLogin}
+                onChange={(e) => {
+                  setFilterSinceLogin(e.target.checked);
+                  loadTransactions(e.target.checked);
+                }}
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+          <div
+            style={{
+              background:
+                themes[theme]?.cardBackground || themes.blue.cardBackground,
+              padding: "8px 12px",
+              borderRadius: "20px",
+              border: `1px solid ${
+                themes[theme]?.border || themes.blue.border
+              }`,
+              fontWeight: "500",
+              color: themes[theme]?.textSecondary || themes.blue.textSecondary,
             }}
           >
             Ledger: {ledgerIndex}
           </div>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <select
+            value={theme}
+            onChange={(e) => {
+              setTheme(e.target.value);
+              localStorage.setItem("appTheme", e.target.value);
+            }}
+            style={{
+              background: "#ffffff",
+              color: "#000000",
+              border: "1px solid #cccccc",
+              borderRadius: "15px",
+              padding: "5px 10px",
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              minWidth: "100px",
+            }}
+          >
+            <option value="blue">Blue</option>
+            <option value="cyan">Cyan</option>
+            <option value="purple">Purple</option>
+            <option value="magenta">Magenta</option>
+            <option value="dark">Dark</option>
+            <option value="pink">Pink</option>
+            <option value="orange">Orange</option>
+            <option value="green">Green</option>
+            <option value="brown">Brown</option>
+            <option value="gold">Gold</option>
+          </select>
+          <select
+            value={fontFamily}
+            onChange={(e) => {
+              setFontFamily(e.target.value);
+              localStorage.setItem("appFont", e.target.value);
+            }}
+            style={{
+              background: "#ffffff",
+              color: "#000000",
+              border: "1px solid #cccccc",
+              borderRadius: "15px",
+              padding: "5px 10px",
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              minWidth: "120px",
+            }}
+          >
+            <option value="showcardGothic">Showcard Gothic</option>
+            <option value="arialRounded">Arial Rounded</option>
+            <option value="burbank">Burbank</option>
+            <option value="comicSans">Comic Sans</option>
+            <option value="gillSans">Gill Sans</option>
+            <option value="cooperBlack">Cooper Black</option>
+            <option value="tahoma">Tahoma</option>
+            <option value="garamond">Garamond</option>
+            <option value="gadugi">Gadugi</option>
+          </select>
           <button
             onClick={handleLogout}
             style={{
-              background: "linear-gradient(135deg, #27a2db, #1565c0)",
-              color: "#ffffff",
-              border: "1px solid #27a2db",
+              background: `linear-gradient(135deg, ${
+                themes[theme]?.primary || themes.blue.primary
+              }, ${themes[theme]?.secondary || themes.blue.secondary})`,
+              color: themes[theme]?.text || themes.blue.text,
+              border: `1px solid ${
+                themes[theme]?.border || themes.blue.border
+              }`,
               padding: "8px 15px",
               borderRadius: "25px",
               cursor: "pointer",
               fontWeight: "bold",
               textTransform: "uppercase",
+              fontFamily: fonts[fontFamily] || fonts.default,
             }}
           >
             Disconnect
@@ -2699,12 +3147,11 @@ function App() {
           For issues or questions, please open an issue on GitHub
         </p>
         <p style={{ fontSize: "0.7rem", color: "#475569", marginTop: "10px" }}>
-          © {new Date().getFullYear()} AMM Token Swapping Turbocharger - XRPL
+          © {new Date().getFullYear()} Token Swapping Turbocharger - XRPL
           Analytics Tool
         </p>
       </div>
     </div>
   );
 }
-
 export default App;
