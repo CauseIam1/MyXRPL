@@ -13,7 +13,7 @@ See screenshot of actual account.  (App Screenshot.jpg)
 
 Direct link...
 
-To be added later today
+https://dweb.link/ipfs/bafybeibga6feokwm6xosxmrqfxryyjmse5mcjyjzrgr4rikrda2l6exsxi
 
 Started a new project for the AMM side of things, AMM Advanced Analytics...
 
@@ -22,5 +22,6 @@ Token Swapping Turbocharger is a way to maximize AMM and token holdings. To take
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
 causeiam.x
+
 
 
