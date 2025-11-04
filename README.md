@@ -1,7 +1,7 @@
 MyXRPL DeFi is a way to maximize your XRPL token holdings.
 Take advantage of the Reverse Swap calculator and boost your piles of each asset.
 Swap some of your assets for other assets (through AMM pools).
-Then load your r-address into the Turbocharger (direct ipfs link below).
+Then load your r-address into the Turbocharger (myxrpl.x).
 When you log in and Flip The Switch, it loads your transaction history of all your past swaps.
 It groups all past swaps within Swap Pairs in chronological order.
 It starts with your oldest trade (keeping running total) and goes through your swaps in the same order you filled them.
@@ -21,4 +21,5 @@ Take a look at it in action (MyXRPL_DeFi.mp4)
 
 Special thanks to the XRPL.org, Xaman and most importantly, The Pirate.
 
-causeiam.x
+myxrpl.x
+
