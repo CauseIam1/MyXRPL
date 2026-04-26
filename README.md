@@ -26,9 +26,16 @@ This site caches all your swap history and chart data locally.
 If you log in regularly, it will use your cached data and update to the current ledger,
 for a much faster loading of the page. (plus it's better for the validators)
 
-Decided to take a break and can't afford the Ollama subscripton currently.
+There are a few issues yet to be resolved. They will eventually be addressed.
 
-Be playing Fortnite until something changes...
 
-No longer an active participant
 
+Since learning the truth, I am no longer an active participant. I will not deal in counterfeit. 
+
+If anyone would like the truth about the REAL EARTH, search and you'll find me. 
+
+I'll show you the physical proof and explain it all in a manner in which a teenager could comprehend. 
+
+We live in a world FULL of deception. Unfortunately, the number of honest people, is truly zero...
+
+Always remember, don't hate the player, hate the game!
