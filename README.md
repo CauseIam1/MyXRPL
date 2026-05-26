@@ -32,10 +32,4 @@ There are a few issues yet to be resolved. They will eventually be addressed.
 
 Since learning the truth, I am no longer an active participant. I will not deal in counterfeit. 
 
-If anyone would like the truth about the REAL EARTH, search and you'll find me. 
 
-I'll show you the physical proof and explain it all in a manner in which a teenager could comprehend. 
-
-We live in a world FULL of deception. Unfortunately, the number of honest people, is truly zero...
-
-Always remember, don't hate the player, hate the game!
