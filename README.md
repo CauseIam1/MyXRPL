@@ -30,6 +30,5 @@ There are a few issues yet to be resolved. They will eventually be addressed.
 
 
 
-Since learning the truth, I am no longer an active participant. I will not deal in counterfeit. 
 
 
