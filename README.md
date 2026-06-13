@@ -28,6 +28,10 @@ for a much faster loading of the page. (plus it's better for the validators)
 
 There are a few issues yet to be resolved. They will eventually be addressed.
 
+The project has evolved to a multi AI assisted Full Bare Metal live dashboard.
+
+bye...
+
 
 
 
