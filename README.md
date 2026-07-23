@@ -112,4 +112,3 @@ The user interface replaces static tables with an interactive 3D tactical map:
  * **Rendering:** Three.js / React Three Fiber / GLSL Shaders
  * **Network:** @xrplf/xrpl-client or direct WebSocket connections to public XRPL RPCs
  * **Client Storage:** idb (IndexedDB wrapper) + LocalStorage
- * **Signing Portal:** Integrated Xaman (XUMM) SDK for client-side push-to-sign payloads
