@@ -53,7 +53,6 @@ Because IPFS has no backend server to run Java or Node.js API endpoints (/api/..
 By shifting the computation and state persistence entirely to the client's browser, your IPFS-hosted myxrpl.com becomes a decentralized, lightning-fast "dumb glass" portal that anyone can pull up anywhere in the world without you having to run heavy infrastructure for them.
 
 
-
 # The Future of MyXRPL.com
 
 ## MYXRPL_IPFS_BLUEPRINT.md
