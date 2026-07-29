@@ -1,10 +1,13 @@
 # MyXRPL.com XRPL DeFi Future upgrade
 
+**[MyXRPL Short](Myxrpl_short.mp4)**
+
 # https://www.youtube.com/watch?v=huMmN5SLq9E&t=7s
 **![Hodl vs Meme](Meme.png)**
 **![AMM Mechanics](AMM.png)**
 **![Mesh Accumulation Strategy](Mesh.png)**
 **![Current status Image](Screen.png)**
+
 
 ### 🌌 Interactive "Stellar Cartography" Mechanics
 
