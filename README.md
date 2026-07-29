@@ -4,7 +4,7 @@
 **![Hodl vs Meme](Meme.png)**
 **![AMM Mechanics](AMM.png)**
 **![Mesh Accumulation Strategy](Mesh.png)**
-**![Concept Image](Concept_screen.png)**
+**![Current status Image](Screen.png)**
 
 ### 🌌 Interactive "Stellar Cartography" Mechanics
 
