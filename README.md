@@ -1,7 +1,10 @@
 # MyXRPL.com XRPL DeFi Future upgrade
 
 # https://www.youtube.com/watch?v=huMmN5SLq9E&t=7s
-
+**![Hodl vs Meme](Meme.png)**
+**![AMM Mechanics](AMM.png)**
+**![Mesh Accumulation Strategy](Mesh.png)**
+**![Concept Image](Concept_screen.png)**
 
 ### 🌌 Interactive "Stellar Cartography" Mechanics
 
@@ -79,7 +82,6 @@ Since this app operates as a serverless static export hosted on IPFS, all networ
  * **Incremental Ledger Fetching:** Upon reopening the app, read the local cache, query public nodes *only* for ledgers closed after last_scanned_ledger_index, merge the datasets, and update local state. *(Note: Ensure date/ledger bounds checks prevent duplicate entry bugs during cache hydration)*.
 ## 4. Front-End Topography: 3D "Stellar Cartography" HUD
 The user interface replaces static tables with an interactive 3D tactical map:
-**![Concept Image](Concept_screen.png)**
 ### A. 3D Coordinates & Micro-Physics
  * **The Bedrock Anchor:** XRP is locked at the central origin (0,0,0). Global displacement mass and visual node sizes scale mathematically using true xrp_equivalent mass.
  * **Radial Distance Engine:** Distance from center is driven by ratio divergence. Positive divergence pulls nodes inward toward the core; negative divergence drifts them outward.
