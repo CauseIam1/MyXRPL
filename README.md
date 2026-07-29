@@ -1,6 +1,6 @@
 # MyXRPL.com XRPL DeFi Future upgrade
 
-**[MyXRPL Short](Myxrpl_short.mp4)**
+**[MyXRPL on Cell Phone](Myxrpl_short.mp4)**
 
 # https://www.youtube.com/watch?v=huMmN5SLq9E&t=7s
 **![Hodl vs Meme](Meme.png)**
