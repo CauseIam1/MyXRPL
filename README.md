@@ -1,4 +1,8 @@
 # MyXRPL.com XRPL DeFi Future upgrade
+
+# https://www.youtube.com/watch?v=huMmN5SLq9E&t=7s
+
+
 ### 🌌 Interactive "Stellar Cartography" Mechanics
 
 **1. Omni-Directional Camera Controls (The Holographic Table)**
